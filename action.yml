@@ -1,0 +1,28 @@
+name: 'xcresulttool'
+description: 'generates a human-readable test report from the Xcode result bundle and shows it on GitHub Checks.'
+author: 'step-security'
+inputs:
+  path:
+    required: true
+    description: 'Path to the xcresult bundle'
+  token:
+    description: 'The GitHub authentication token'
+    default: ${{ github.token }}
+  title:
+    description: 'Title for the check results'
+    default: 'Xcode test results'
+  show-passed-tests:
+    description: 'Show passed tests'
+    default: true
+  show-code-coverage:
+    description: 'Whether to show code coverage'
+    default: true
+  upload-bundles:
+    description: 'Whether to upload the xcresult bundles. possible values: always, failure, never. Specifying failure will only upload the bundle if all the tests do not pass.'
+    default: always
+runs:
+  using: 'node24'
+  main: 'dist/index.js'
+branding:
+  icon: 'file-text'
+  color: 'blue'
