@@ -1,4 +1,4 @@
-import * as artifact from '@actions/artifact'
+import {DefaultArtifactClient} from '@actions/artifact'
 import * as core from '@actions/core'
 import * as exec from '@actions/exec'
 import * as github from '@actions/github'
@@ -171,13 +171,10 @@ async function run(): Promise<void> {
             continue
           }
 
-          const artifactClient = artifact.create()
+          const artifactClient = new DefaultArtifactClient()
           const artifactName = path.basename(uploadBundlePath)
 
           const rootDirectory = uploadBundlePath
-          const options = {
-            continueOnError: false
-          }
 
           glob(`${uploadBundlePath}/**/*`, async (error, files) => {
             if (error) {
@@ -187,8 +184,7 @@ async function run(): Promise<void> {
               await artifactClient.uploadArtifact(
                 artifactName,
                 files,
-                rootDirectory,
-                options
+                rootDirectory
               )
             }
           })
@@ -206,7 +202,7 @@ async function mergeResultBundle(
   inputPaths: string[],
   outputPath: string
 ): Promise<void> {
-  const args = ['xcresulttool', 'merge']
+  const args = ['xcresulttool', 'merge', '--legacy']
     .concat(inputPaths)
     .concat(['--output-path', outputPath])
   const options = {

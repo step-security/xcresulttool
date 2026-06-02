@@ -35,7 +35,7 @@ in `TestResults.xcresult`
 ```yaml
 jobs:
   test:
-    runs-on: macos-11
+    runs-on: macos-latest
       - name: Run Tests
         run: |
           xcodebuild -scheme MyFramework -resultBundlePath TestResults test
@@ -59,7 +59,7 @@ jobs:
 ```yaml
 jobs:
   test:
-    runs-on: macos-11
+    runs-on: macos-latest
     name: Test
     steps:
       - uses: actions/checkout@v6
