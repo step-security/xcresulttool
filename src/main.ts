@@ -1,12 +1,11 @@
 import {DefaultArtifactClient} from '@actions/artifact'
 import * as core from '@actions/core'
-import * as exec from '@actions/exec'
 import * as github from '@actions/github'
 import axios, {isAxiosError} from 'axios'
-import * as os from 'os'
 import * as path from 'path'
 import {Formatter} from './formatter'
 import {Octokit} from '@octokit/action'
+import {combineReports} from './report'
 import {glob} from 'glob'
 import * as fs from 'fs'
 const {stat} = fs.promises
@@ -80,20 +79,20 @@ async function run(): Promise<void> {
         core.error((error as Error).message)
       }
     }
-    let bundlePath = path.join(os.tmpdir(), 'Merged.xcresult')
-    if (inputPaths.length > 1) {
-      await mergeResultBundle(bundlePaths, bundlePath)
+    let report
+    if (bundlePaths.length > 1) {
+      const reports = []
+      for (const p of bundlePaths) {
+        const formatter = new Formatter(p)
+        reports.push(
+          await formatter.format({showPassedTests, showCodeCoverage})
+        )
+      }
+      report = combineReports(reports)
     } else {
-      const inputPath = inputPaths[0]
-      await stat(inputPath)
-      bundlePath = inputPath
+      const formatter = new Formatter(bundlePaths[0])
+      report = await formatter.format({showPassedTests, showCodeCoverage})
     }
-
-    const formatter = new Formatter(bundlePath)
-    const report = await formatter.format({
-      showPassedTests,
-      showCodeCoverage
-    })
 
     if (core.getInput('token')) {
       await core.summary.addRaw(report.reportSummary).write()
@@ -197,17 +196,3 @@ async function run(): Promise<void> {
 }
 
 run()
-
-async function mergeResultBundle(
-  inputPaths: string[],
-  outputPath: string
-): Promise<void> {
-  const args = ['xcresulttool', 'merge', '--legacy']
-    .concat(inputPaths)
-    .concat(['--output-path', outputPath])
-  const options = {
-    silent: true
-  }
-
-  await exec.exec('xcrun', args, options)
-}

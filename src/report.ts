@@ -423,3 +423,24 @@ export class BuildLog {
     }
   }
 }
+
+export function combineReports(reports: TestReport[]): TestReport {
+  if (reports.length === 1) return reports[0]
+  const combined = new TestReport()
+  combined.entityName = reports[0].entityName
+  combined.creatingWorkspaceFilePath = reports[0].creatingWorkspaceFilePath
+  combined.buildLog = reports[0].buildLog
+  combined.codeCoverage = reports[0].codeCoverage
+  for (const r of reports) {
+    combined.chapters.push(...r.chapters)
+    combined.annotations.push(...r.annotations)
+  }
+  const hasFailure = reports.some(r => r.testStatus === 'failure')
+  const hasSuccess = reports.some(r => r.testStatus === 'success')
+  combined.testStatus = hasFailure
+    ? 'failure'
+    : hasSuccess
+    ? 'success'
+    : 'neutral'
+  return combined
+}
