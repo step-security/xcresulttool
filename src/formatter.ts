@@ -42,7 +42,7 @@ import {Activity} from './activity'
 import {ActivityLogSection} from '../dev/@types/ActivityLogSection.d'
 import {Convert} from './coverage'
 import {Parser} from './parser'
-import {exportAttachments} from './attachment'
+// import {exportAttachments} from './attachment'
 
 const passedIcon = Image.testStatus('Success')
 const failedIcon = Image.testStatus('Failure')
@@ -905,7 +905,7 @@ export class Formatter {
     for (const activitySummary of activitySummaries) {
       const activity = activitySummary as Activity
       activity.indent = indent
-      await exportAttachments(this.parser, activity)
+      // await exportAttachments(this.parser, activity)
       activities.push(activity)
 
       if (activitySummary.subactivities) {
